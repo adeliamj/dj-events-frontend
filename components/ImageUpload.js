@@ -2,27 +2,47 @@ import { useState } from 'react'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Form.module.css'
 
-export default function ImageUpload({ evtId, imageUploaded, token }) {
+export default function ImageUpload({ evtId, imageUploaded }) {
   const [image, setImage] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!image) {
+      alert('Please select an image first')
+      return
+    }
+
+    if (!evtId) {
+      console.error("Error: evtId is undefined!")
+      alert("Event ID is missing. Cannot upload image.")
+      return
+    }
+
     const formData = new FormData()
-    formData.append('files', image)
-    formData.append('ref', 'events')
-    formData.append('refId', evtId)
-    formData.append('field', 'image')
+    formData.append('files', image)  // File gambar
+    formData.append('ref', 'api::event.event') // Nama model di Strapi
+    formData.append('refId', evtId)  // ID event terkait
+    formData.append('field', 'image') // Nama field di event
 
-    const res = await fetch(`${API_URL}/upload`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    })
+    try {
+      const res = await fetch(`${API_URL}/api/upload`, {
+        method: 'POST',
+        body: formData,
+      })
 
-    if (res.ok) {
+      if (!res.ok) {
+        const errorData = await res.json()
+        console.error('Upload failed:', errorData)
+        alert(`Upload failed: ${errorData.error.message}`)
+        return
+      }
+
+      // Update tampilan dengan gambar baru
       imageUploaded()
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('An error occurred while uploading the image')
     }
   }
 

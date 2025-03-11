@@ -29,16 +29,24 @@ export default function HomePage({ events, page, total }) {
 }
 
 export async function getServerSideProps({ query: { page = 1 } }) {
-  const start = +page === 1 ? 0 : (+page - 1) * PER_PAGE;
+  const pageNum = Number(page) || 1; // Pastikan page selalu angka
+  console.log("Converted page number:", pageNum);
 
-  // Fetch the total count of events
-  const totalRes = await fetch(`${API_URL}/api/events/count`);
-  const total = await totalRes.json();
+  const start = (pageNum - 1) * PER_PAGE;
+  console.log("Start value:", start);
+
+  // Fetch total count of events
+  const totalRes = await fetch(`${API_URL}/api/events?pagination[withCount]=true`);
+  const totalJson = await totalRes.json();
+  const total = totalJson.meta?.pagination?.total || 0;
+  console.log("Total events:", total);
+
 
   // Fetch events for the current page
   const eventRes = await fetch(
-    `${API_URL}/api/events?_sort=date:ASC&_limit=${PER_PAGE}&_start=${start}&populate=*`
+    `${API_URL}/api/events?pagination[page]=${pageNum}&pagination[pageSize]=${PER_PAGE}&sort[0]=date:asc&populate=*`
   );
+  
   const eventJson = await eventRes.json();
 
   const events = eventJson.data?.map(item => ({
@@ -55,9 +63,10 @@ export async function getServerSideProps({ query: { page = 1 } }) {
   })) || [];
 
   return {
-    props: { events, page: +page, total },
+    props: { events, page: pageNum, total },
   };
 }
+
 
 
 // export async function getStaticProps() {

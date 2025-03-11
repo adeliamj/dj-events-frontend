@@ -30,58 +30,52 @@ export default function EditEventPage({ evt }) {
 
     const router = useRouter()
 
-    const Modal = ({ show, onClose, children }) => {
-        if (!show) return null;
-        return (
-            <div className="modal">
-                <div className="modal-content">
-                    <button onClick={onClose}>Close</button>
-                    {children}
-                </div>
-            </div>
-        );
-    };
-
-
     // Handling the submit
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
-        // Validasi input
-        const hasEmptyFields = Object.values(values).some((element) => element === '');
+        // Validation
+        const hasEmptyFields = Object.values(values).some(
+            (element) => element === ''
+        )
 
         if (hasEmptyFields) {
-            toast.error('Please fill in all fields');
-            return;
+            toast.error('Please fill in all fields')
+            return
         }
 
         try {
-            const res = await fetch(`${API_URL}/api/events/${evt.id}`, {
+            const res = await fetch(`${API_URL}/events/${evt.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`, // Token handling here
                 },
-                body: JSON.stringify({
-                    data: values // Perbaikan: Bungkus dalam objek `data`
-                }),
-            });
+                body: JSON.stringify(values),
+            })
 
             if (!res.ok) {
-                // Ambil pesan error dari response
-                const errorData = await res.json();
-                toast.error(`Something went wrong: ${errorData.error.message}`);
-                return;
+                // Check for specific error statuses
+                if (res.status === 403 || res.status === 401) {
+                    toast.error('Unauthorized')
+                    return
+                } else if (res.status === 405) {
+                    toast.error('Method Not Allowed for this endpoint')
+                    return
+                }
+
+                // For other errors, try to get a more detailed message
+                const errorText = await res.text()  // Get error response text
+                toast.error(`Something went wrong: ${errorText}`)
+            } else {
+                const updatedEvt = await res.json()
+                router.push(`/events/${updatedEvt.slug}`)
             }
-
-            // Jika berhasil, ambil event terbaru
-            const updatedEvt = await res.json();
-            router.push(`/events/${updatedEvt.data.slug}`);
         } catch (error) {
-            toast.error('Error occurred while updating the event');
-            console.error('API Request Error:', error);
+            toast.error('Error occurred while updating the event')
+            console.error('API Request Error:', error)
         }
-    };
-
+    }
 
 
     // Handling input change
@@ -91,45 +85,13 @@ export default function EditEventPage({ evt }) {
     }
 
     // Handling image upload
-    const imageUploaded = async () => {
-        try {
-            console.log("Fetching event with ID:", evt.id);
-            const res = await fetch(`${API_URL}/api/events?filters[id][$eq]=${evt.id}&populate=image`);
-            const data = await res.json();
-    
-            console.log("API Response:", JSON.stringify(data, null, 2)); // Debugging response
-    
-            if (!res.ok || !data.data || data.data.length === 0) {
-                console.error("Event not found:", data);
-                return;
-            }
-    
-            const event = data.data[0]; // Ambil event pertama
-            console.log("Event Data Structure:", event); // Debugging
-    
-            // ✅ Akses slug dengan aman
-            const slug = event.slug || event.attributes?.slug;
-            if (slug) {
-                console.log("Redirecting to:", `/events/${slug}`);
-                router.push(`/events/${slug}`);
-            } else {
-                console.warn("Slug not found in response:", event);
-            }
-    
-            // ✅ Akses gambar dengan aman
-            const imageUrl = event.image?.url || event.attributes?.image?.data?.attributes?.url;
-            if (imageUrl) {
-                setImagePreview(imageUrl);
-            } else {
-                console.warn("No image found in response.");
-            }
-    
-            setShowModal(false);
-        } catch (error) {
-            console.error("Error fetching updated image:", error);
-        }
-    };
-    
+    const imageUploaded = async (e) => {
+        const res = await fetch(`${API_URL}/api/events?id=${evt.id}`)
+        const data = await res.json()
+        setImagePreview(data.image.formats.thumbnail.url)
+        setShowModal(false)
+    }
+
     return (
         <Layout title='Edit Event'>
             <Link href='/events'>Go Back</Link>
@@ -214,7 +176,7 @@ export default function EditEventPage({ evt }) {
 
             <h2>Event Image</h2>
             {imagePreview ? (
-                <Image src={imagePreview} alt={evt.name || "Event Image"} height={100} width={170} />
+                <Image src={imagePreview} height={100} width={170} />
             ) : (
                 <div>
                     <p>No image uploaded</p>

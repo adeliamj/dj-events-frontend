@@ -14,7 +14,7 @@ const EventPage = ({ evt }) => {
   // Fungsi untuk menghapus event
   const deleteEvent = async (e) => {
     if (confirm('Are you sure?')) {
-      const res = await fetch(`${API_URL}/events/${evt.id}`, {
+      const res = await fetch(`${API_URL}/api/events/${evt.id}`, {
         method: 'DELETE',
       });
 
@@ -93,7 +93,7 @@ const EventPage = ({ evt }) => {
           <div className={styles.back}>{'<'} Go Back</div>
         </Link>
       </div>
-    </Layout>
+    </Layout >
   );
 };
 

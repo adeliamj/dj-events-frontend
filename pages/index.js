@@ -31,7 +31,7 @@ export default function HomePage({ events }) {
 }
 
 export async function getStaticProps() {
-  const res = await fetch(`${API_URL}/api/events?_sort=date:ASC&_limit=3&populate=*`);
+  const res = await fetch(`${API_URL}/api/events?pagination[page]=1&pagination[pageSize]=3&sort[0]=date:asc&populate=*`);
 
   if (!res.ok) {
     console.error("Error fetching events:", res.statusText);

@@ -1,15 +1,38 @@
-import ReactDOM from 'react-dom';
+import { useState, useEffect } from 'react'
+import ReactDOM from 'react-dom'
+import { FaTimes } from 'react-icons/fa'
+import styles from '@/styles/Modal.module.css'
 
-const Modal = ({ isOpen, onClose }) => {
-    if (!isOpen) return null;
+export default function Modal({ show, onClose, children, title }) {
+  const [isBrowser, setIsBrowser] = useState(false)
 
-    return ReactDOM.createPortal(
-        <div className="modal">
-            <button onClick={onClose}>Close</button>
-            <p>Your modal content here</p>
-        </div>,
-        document.getElementById('modal-root') // Ensure 'modal-root' exists in your HTML
-    );
-};
+  useEffect(() => {
+    setIsBrowser(true)
+  }, [])
 
-export default Modal;
+  const handleClose = (e) => {
+    e.preventDefault()
+    onClose()
+  }
+
+  const modalContent = show ? (
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <a href='#' onClick={handleClose}>
+            <FaTimes />
+          </a>
+        </div>
+        {title && <div>{title}</div>}
+        <div className={styles.body}>{children}</div>
+      </div>
+    </div>
+  ) : null
+
+  if (isBrowser) {
+    const modalRoot = document.getElementById('modal-root')
+    return modalRoot ? ReactDOM.createPortal(modalContent, modalRoot) : null
+  } else {
+    return null
+  }
+}
