@@ -35,7 +35,7 @@ export default function Header() {
                     </li>
                     <li>
                         <Link href='/account/dashboard'>
-                            dashboard
+                            Dashboard
                         </Link>
                     </li>
                     <li>

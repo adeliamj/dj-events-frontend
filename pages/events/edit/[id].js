@@ -11,6 +11,8 @@ import Modal from '@/components/Modal'
 import ImageUpload from '@/components/ImageUpload'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Form.module.css'
+import cookie from 'cookie';
+
 
 export default function EditEventPage({ evt }) {
     const [values, setValues] = useState({
@@ -242,45 +244,13 @@ export default function EditEventPage({ evt }) {
     )
 }
 
-export async function getStaticPaths() {
-    try {
-        const res = await fetch(`${API_URL}/api/events`);
-        const events = await res.json();
-
-        // Check if the events data is valid and contains items
-        if (!events || !events.data || events.data.length === 0) {
-            console.error("No events data found");
-            return {
-                paths: [], // No paths if there is no data
-                fallback: 'blocking',
-            };
-        }
-
-        // Generate paths using the event `id`
-        const paths = events.data.map(evt => ({
-            params: { id: String(evt.id) }, // Use event `id` for path
-        }));
-
-        console.log("Generated paths:", paths); // Debugging path generation
-
-        return {
-            paths,
-            fallback: 'blocking', // Ensure SSR on first request
-        };
-    } catch (error) {
-        console.error("Error fetching event paths:", error);
-        return {
-            paths: [], // Fallback if an error occurs
-            fallback: 'blocking',
-        };
-    }
-}
-
-export async function getStaticProps({ params: { id } }) {
+export async function getServerSideProps({ params: { id }, req }) {
     try {
         // Fetch the event data using the `id`
         const res = await fetch(`${API_URL}/api/events?populate=*&id=${id}`);
         const events = await res.json();
+
+        console.log(req.headers.cookie); // Accessing cookie in req headers
 
         // Ensure the events data is valid
         if (!events || !events.data || events.data.length === 0) {
@@ -309,7 +279,7 @@ export async function getStaticProps({ params: { id } }) {
             venue: evt.venue || 'Unknown Venue',
             address: evt.address || 'Unknown Address',
             performers: evt.performers || 'Unknown Performers',
-            description: evt.description || 'No description available', // Handle missing description
+            description: evt.description || 'No description available',
             image: evt.image || null,
         };
 
@@ -317,7 +287,6 @@ export async function getStaticProps({ params: { id } }) {
             props: {
                 evt: sanitizedEvt, // Passing the sanitized event to the page
             },
-            revalidate: 1, // Optional: Set to a certain value for ISR
         };
     } catch (error) {
         console.error(`Error fetching event for ID ${id}:`, error);
@@ -326,5 +295,94 @@ export async function getStaticProps({ params: { id } }) {
         };
     }
 }
+
+
+// export async function getStaticPaths() {
+//     try {
+//         const res = await fetch(`${API_URL}/api/events`);
+//         const events = await res.json();
+
+//         // Check if the events data is valid and contains items
+//         if (!events || !events.data || events.data.length === 0) {
+//             console.error("No events data found");
+//             return {
+//                 paths: [], // No paths if there is no data
+//                 fallback: 'blocking',
+//             };
+//         }
+
+//         // Generate paths using the event `id`
+//         const paths = events.data.map(evt => ({
+//             params: { id: String(evt.id) }, // Use event `id` for path
+//         }));
+
+//         console.log("Generated paths:", paths); // Debugging path generation
+
+//         return {
+//             paths,
+//             fallback: 'blocking', // Ensure SSR on first request
+//         };
+//     } catch (error) {
+//         console.error("Error fetching event paths:", error);
+//         return {
+//             paths: [], // Fallback if an error occurs
+//             fallback: 'blocking',
+//         };
+//     }
+// }
+
+
+// export async function getStaticProps({ params: { id } }, req) {
+//     try {
+//         // Fetch the event data using the `id`
+//         const res = await fetch(`${API_URL}/api/events?populate=*&id=${id}`);
+//         const events = await res.json();
+
+//         console.log(req.headers.cookie)
+
+//         // Ensure the events data is valid
+//         if (!events || !events.data || events.data.length === 0) {
+//             console.error(`No event data found for ID: ${id}`);
+//             return {
+//                 notFound: true, // Return 404 if no event found
+//             };
+//         }
+
+//         // Find the event that matches the ID
+//         const evt = events.data.find(event => String(event.id) === id);
+
+//         if (!evt) {
+//             console.error(`No event found with ID: ${id}`);
+//             return {
+//                 notFound: true, // Return 404 if no event matches the ID
+//             };
+//         }
+
+//         // Ensure the event object is serializable and provide default values
+//         const sanitizedEvt = {
+//             id: evt.id || null,
+//             name: evt.name || 'Untitled Event',
+//             date: evt.date || 'TBD',
+//             time: evt.time || 'TBD',
+//             venue: evt.venue || 'Unknown Venue',
+//             address: evt.address || 'Unknown Address',
+//             performers: evt.performers || 'Unknown Performers',
+//             description: evt.description || 'No description available', // Handle missing description
+//             image: evt.image || null,
+//         };
+
+//         return {
+//             props: {
+//                 evt: sanitizedEvt, // Passing the sanitized event to the page
+//             },
+//             revalidate: 1, // Optional: Set to a certain value for ISR
+//         };
+//     } catch (error) {
+//         console.error(`Error fetching event for ID ${id}:`, error);
+//         return {
+//             notFound: true, // Return 404 if an error occurs
+//         };
+//     }
+// }
 
 

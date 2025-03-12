@@ -13,49 +13,55 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
 
-  const {register, error} = useContext(AuthContext)
+  const { register, error } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
 
   const handleSubmit = e => {
     e.preventDefault()
 
-    if (password !== passwordConfirm){
+    if (password !== passwordConfirm) {
       toast.error('Password do not match!')
       return
     }
 
-    register({username, email, password, passwordConfirm})
+    register({ username, email, password})
   }
 
-  return(
+  return (
     <Layout title='User Registration'>
       <div className={styles.auth}>
         <h1>
           <FaUser /> Register
         </h1>
-        <ToastContainer/>
+        <ToastContainer />
         <form onSubmit={handleSubmit}>
           <div>
             <label htmlFor='username'> Username</label>
-            <input type='text' id='username' value={username} 
-            onChange={(e) => setUsername(e.target.value)} />
+            <input type='text' id='username' value={username}
+              onChange={(e) => setUsername(e.target.value)} />
           </div>
           <div>
             <label htmlFor='email'> Email Address </label>
-            <input type='email' id='email' value={email} 
-            onChange={(e) => setEmail(e.target.value)} />
+            <input type='email' id='email' value={email}
+              onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
             <label htmlFor='password'>Password</label>
-            <input type='password' id='password' value={password} 
-            onChange={(e) => setPassword(e.target.value)} />
+            <input type='password' id='password' value={password}
+              onChange={(e) => setPassword(e.target.value)} />
           </div>
           <div>
             <label htmlFor='passwordConfirm'>Confirm Password</label>
-            <input type='password' id='passwordConfirm' value={passwordConfirm} 
-            onChange={(e) => setPasswordConfirm(e.target.value)} />
+            <input type='password' id='passwordConfirm' value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)} />
           </div>
 
-          <input type='submit' value="Login" className='btn'/>
+          <input type='submit' value="Register" className='btn' />
         </form>
         <p>
           Alredy have an account? <Link href='/account/login'>Login</Link>
