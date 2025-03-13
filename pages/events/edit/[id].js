@@ -1,3 +1,4 @@
+import parseCookies from '@/helpers/index';
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { FaImage } from 'react-icons/fa'
@@ -14,7 +15,7 @@ import styles from '@/styles/Form.module.css'
 import cookie from 'cookie';
 
 
-export default function EditEventPage({ evt }) {
+export default function EditEventPage({ evt, token }) {
     const [values, setValues] = useState({
         name: evt.name,
         performers: evt.performers,
@@ -32,17 +33,17 @@ export default function EditEventPage({ evt }) {
 
     const router = useRouter()
 
-    const Modal = ({ show, onClose, children }) => {
-        if (!show) return null;
-        return (
-            <div className="modal">
-                <div className="modal-content">
-                    <button onClick={onClose}>Close</button>
-                    {children}
-                </div>
-            </div>
-        );
-    };
+    // const Modal = ({ show, onClose, children }) => {
+    //     if (!show) return null;
+    //     return (
+    //         <div className="modal">
+    //             <div className="modal-content">
+    //                 <button onClick={onClose}>Close</button>
+    //                 {children}
+    //             </div>
+    //         </div>
+    //     );
+    // };
 
 
     // Handling the submit
@@ -61,7 +62,8 @@ export default function EditEventPage({ evt }) {
             const res = await fetch(`${API_URL}/api/events/${evt.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     data: values // Perbaikan: Bungkus dalam objek `data`
@@ -69,7 +71,10 @@ export default function EditEventPage({ evt }) {
             });
 
             if (!res.ok) {
-                // Ambil pesan error dari response
+                if (res.status === 403 || res.status === 401) {
+                    toast.error('Unauthorized');
+                    return
+                }
                 const errorData = await res.json();
                 toast.error(`Something went wrong: ${errorData.error.message}`);
                 return;
@@ -98,17 +103,17 @@ export default function EditEventPage({ evt }) {
             console.log("Fetching event with ID:", evt.id);
             const res = await fetch(`${API_URL}/api/events?filters[id][$eq]=${evt.id}&populate=image`);
             const data = await res.json();
-    
+
             console.log("API Response:", JSON.stringify(data, null, 2)); // Debugging response
-    
+
             if (!res.ok || !data.data || data.data.length === 0) {
                 console.error("Event not found:", data);
                 return;
             }
-    
+
             const event = data.data[0]; // Ambil event pertama
             console.log("Event Data Structure:", event); // Debugging
-    
+
             // ✅ Akses slug dengan aman
             const slug = event.slug || event.attributes?.slug;
             if (slug) {
@@ -117,7 +122,7 @@ export default function EditEventPage({ evt }) {
             } else {
                 console.warn("Slug not found in response:", event);
             }
-    
+
             // ✅ Akses gambar dengan aman
             const imageUrl = event.image?.url || event.attributes?.image?.data?.attributes?.url;
             if (imageUrl) {
@@ -125,13 +130,13 @@ export default function EditEventPage({ evt }) {
             } else {
                 console.warn("No image found in response.");
             }
-    
+
             setShowModal(false);
         } catch (error) {
             console.error("Error fetching updated image:", error);
         }
     };
-    
+
     return (
         <Layout title='Edit Event'>
             <Link href='/events'>Go Back</Link>
@@ -215,13 +220,15 @@ export default function EditEventPage({ evt }) {
             </form>
 
             <h2>Event Image</h2>
-            {imagePreview ? (
-                <Image src={imagePreview} alt={evt.name || "Event Image"} height={100} width={170} />
-            ) : (
-                <div>
-                    <p>No image uploaded</p>
-                </div>
-            )}
+            {
+                imagePreview ? (
+                    <Image src={imagePreview} alt={evt.name || "Event Image"} height={100} width={170} />
+                ) : (
+                    <div>
+                        <p>No image uploaded</p>
+                    </div>
+                )
+            }
 
             <div>
                 <button
@@ -237,15 +244,18 @@ export default function EditEventPage({ evt }) {
                     evtId={evt.id}
                     alt={evt.name || "Event Image"}
                     imageUploaded={imageUploaded}
-                // token={token} Uncomment when handling token properly
+                    token={token}
                 />
             </Modal>
-        </Layout>
+        </Layout >
     )
 }
 
 export async function getServerSideProps({ params: { id }, req }) {
     try {
+        const cookies = parseCookies(req) || {};
+        const token = cookies.token || null;
+
         // Fetch the event data using the `id`
         const res = await fetch(`${API_URL}/api/events?populate=*&id=${id}`);
         const events = await res.json();
@@ -286,6 +296,7 @@ export async function getServerSideProps({ params: { id }, req }) {
         return {
             props: {
                 evt: sanitizedEvt, // Passing the sanitized event to the page
+                token
             },
         };
     } catch (error) {

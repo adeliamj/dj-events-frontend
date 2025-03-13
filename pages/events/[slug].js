@@ -40,7 +40,7 @@ const EventPage = ({ evt }) => {
   return (
     <Layout>
       <div className={styles.event}>
-        <div className={styles.controls}>
+        {/* <div className={styles.controls}>
           <Link href={`/events/edit/${evt.id}`}>
             <div>
               <FaPencilAlt /> Edit Event
@@ -51,7 +51,7 @@ const EventPage = ({ evt }) => {
               <FaTimes /> Delete Event
             </div>
           </Link>
-        </div>
+        </div> */}
 
         <span>
           {new Date(evt.date).toLocaleDateString('en-US')} at {evt.time}
@@ -74,16 +74,7 @@ const EventPage = ({ evt }) => {
         <p>{evt.performers}</p>
         <h3>Description:</h3>
         <p>
-          {evt.description && Array.isArray(evt.description)
-            ? evt.description.map((paragraph, index) => (
-              <span key={index}>
-                {paragraph.children.map((child, childIndex) => (
-                  <span key={childIndex}>{child.text}</span>
-                ))}
-                <br />
-              </span>
-            ))
-            : 'No description available'}
+          {evt.description}
         </p>
 
         <h3>Venue: {evt.venue}</h3>

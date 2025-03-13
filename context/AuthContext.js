@@ -78,16 +78,21 @@ export const AuthProvider = ({ children }) => {
     }
 
     // check if user is logged in
-    const checkUserLoggedIn = async (user) => {
-        const res = await fetch(`${NEXT_URL}/api/user`)
-        const data = await res.json()
+    const checkUserLoggedIn = async () => {
+        const res = await fetch(`${NEXT_URL}/api/user`, {
+            method: "GET",
+            credentials: "include",
+        });
+
+        const data = await res.json();
+        console.log("User Data from API:", data); // Tambahkan ini untuk debugging
 
         if (res.ok) {
-            setUser(data.user)
+            setUser(data.user);
         } else {
-            setUser(null)
+            setUser(null);
         }
-    }
+    };
 
 
     return (
