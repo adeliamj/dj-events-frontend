@@ -3,7 +3,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['res.cloudinary.com'],
+    domains: ['exciting-strength-e9950013f2.media.strapiapp.com'],
   },
 };
 
