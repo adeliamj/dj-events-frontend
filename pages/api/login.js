@@ -9,9 +9,6 @@ export default async (req, res) => {
             return res.status(400).json({ message: "Identifier and password cannot be empty." });
         }
 
-        console.log("Request Body:", req.body);
-
-
         // Log the request body to ensure it's coming in correctly
         console.log("Request Body:", req.body);
 
@@ -27,12 +24,12 @@ export default async (req, res) => {
             const data = await strapiRes.json();
 
             if (strapiRes.ok) {
-                console.log("Identifier:", identifier);
-                console.log("Password:", password);
-                console.log("Cookie module:", cookie);
-                console.log("Strapi Response Data:", data);
-                const { jwt } = data;
-                console.log("Request Body:", req.body);
+                // console.log("Identifier:", identifier);
+                // console.log("Password:", password);
+                // console.log("Cookie module:", cookie);
+                // console.log("Strapi Response Data:", data);
+                // const { jwt } = data;
+                // console.log("Request Body:", req.body);
 
                 res.setHeader(
                     'Set-Cookie',
@@ -47,7 +44,7 @@ export default async (req, res) => {
                 return res.status(200).json({ user: data.user });
             } else {
                 // Log the error message returned from Strapi
-                console.error("Strapi Error:", data.error);
+                // console.error("Strapi Error:", data.error);
                 return res.status(data.error?.status || 500).json({ message: data.error?.message || "Login failed" });
             }
         } catch (error) {

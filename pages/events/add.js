@@ -8,7 +8,7 @@ import Layout from '@/components/Layout'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Form.module.css'
 
-export default function AddEventPage({token }) {
+export default function AddEventPage({ token }) {
   const [values, setValues] = useState({
     name: '',
     performers: '',
@@ -23,15 +23,15 @@ export default function AddEventPage({token }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Validasi
     const hasEmptyFields = Object.values(values).some((element) => element === "");
-  
+
     if (hasEmptyFields) {
       toast.error("Please fill in all fields");
       return;
     }
-  
+
     const res = await fetch(`${API_URL}/api/events`, {
       method: "POST",
       headers: {
@@ -42,9 +42,9 @@ export default function AddEventPage({token }) {
         data: values,  // Mengirimkan data form
       }),
     });
-  
+
     if (!res.ok) {
-      if(res.status === 403 || res.status === 401){
+      if (res.status === 403 || res.status === 401) {
         toast.error("No token included")
         return
       }
@@ -59,8 +59,8 @@ export default function AddEventPage({token }) {
       }
     }
   };
-  
-  
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setValues({ ...values, [name]: value })
@@ -153,11 +153,11 @@ export default function AddEventPage({token }) {
 }
 
 export async function getServerSideProps({ req }) {
-  const { token } = parseCookies(req)
+  const { token } = parseCookies(req);
 
   return {
     props: {
-      token,
+      token: token || null,  // Pastikan token tidak undefined
     },
-  }
+  };
 }

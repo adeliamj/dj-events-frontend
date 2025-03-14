@@ -37,7 +37,6 @@ export const AuthProvider = ({ children }) => {
             router.push('/account/dashboard')
         } else {
             setError(data.message)
-            setError(null)
         }
     }
 
@@ -52,18 +51,19 @@ export const AuthProvider = ({ children }) => {
                 identifier,
                 password,
             }),
-        })
+        });
 
-        const data = await res.json()
+        const data = await res.json();
 
         if (res.ok) {
-            setUser(data.user)
-            router.push('/account/dashboard')
+            setUser(data.user);
+            router.push('/account/dashboard');
         } else {
-            setError(data.message)
-            setError(null)
+            console.error("Login Error:", data.message); 
+            setError(data.message); 
         }
-    }
+    };
+
 
     // Logout user
     const logout = async (user) => {

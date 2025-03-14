@@ -20,9 +20,7 @@ export default function EditEventPage({ evt }) {
         address: evt.address,
         date: evt.date,
         time: evt.time,
-        description: evt.description && Array.isArray(evt.description)
-            ? evt.description.map(paragraph => paragraph.children.map(child => child.text).join('')).join('\n')
-            : evt.description || '',
+        description: evt.description
     })
 
     const [imagePreview, setImagePreview] = useState(evt.image ? evt.image.formats.thumbnail.url : null)

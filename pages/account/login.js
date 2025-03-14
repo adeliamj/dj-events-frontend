@@ -21,10 +21,12 @@ export default function LoginPage() {
   }, [error]);
   
 
-  const handleSubmit = e => {
-    e.preventDefault()
-    login({ email, password })
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Login Data:", { email, password }); // Debugging
+    login({ email, password });
+  };
+  
 
   return (
     <Layout title='User Login'>

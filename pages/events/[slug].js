@@ -73,13 +73,9 @@ const EventPage = ({ evt }) => {
         <h3>Performers: </h3>
         <p>{evt.performers}</p>
         <h3>Description:</h3>
-        <p>
-          {evt.description}
-        </p>
-
+        <p>{evt.description}</p>
         <h3>Venue: {evt.venue}</h3>
         <p>{evt.address}</p>
-
         <Link href='/events'>
           <div className={styles.back}>{'<'} Go Back</div>
         </Link>
