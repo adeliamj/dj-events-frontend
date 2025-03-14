@@ -11,7 +11,6 @@ import { useRouter } from 'next/router';
 const EventPage = ({ evt }) => {
   const router = useRouter();
 
-  // Fungsi untuk menghapus event
   const deleteEvent = async (e) => {
     if (confirm('Are you sure?')) {
       const res = await fetch(`${API_URL}/api/events/${evt.id}`, {
@@ -34,25 +33,11 @@ const EventPage = ({ evt }) => {
     }
   };
 
-  // Ensure imageUrl is a string
   const imageUrl = evt.image && evt.image.formats && evt.image.formats.thumbnail ? evt.image.formats.thumbnail.url : null;
   console.log('evt.description:', evt.description);
   return (
     <Layout>
       <div className={styles.event}>
-        {/* <div className={styles.controls}>
-          <Link href={`/events/edit/${evt.id}`}>
-            <div>
-              <FaPencilAlt /> Edit Event
-            </div>
-          </Link>
-          <Link href="#" className={styles.delete} onClick={deleteEvent}>
-            <div>
-              <FaTimes /> Delete Event
-            </div>
-          </Link>
-        </div> */}
-
         <span>
           {new Date(evt.date).toLocaleDateString('en-US')} at {evt.time}
         </span>
@@ -100,7 +85,7 @@ export async function getStaticPaths() {
       params: { slug: evt.slug }
     }));
 
-    console.log("Generated paths:", paths); // Debugging path generation
+    console.log("Generated paths:", paths);
     return {
       paths,
       fallback: 'blocking',
@@ -116,18 +101,15 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params: { slug } }) {
   try {
-    // Fetch the event data using the slug
     const res = await fetch(`${API_URL}/api/events?populate=*&slug=${slug}`);
     const events = await res.json();
 
-    // Check if the event data exists and is properly structured
     if (!events || !events.data || events.data.length === 0) {
       return {
-        notFound: true, // If no event found, return 404
+        notFound: true,
       };
     }
 
-    // Find the event that matches the slug
     const evt = events.data.find(event => event.slug === slug);
 
     if (!evt) {
@@ -152,14 +134,14 @@ export async function getStaticProps({ params: { slug } }) {
 
     return {
       props: {
-        evt: sanitizedEvt, // Passing the sanitized event to the page
+        evt: sanitizedEvt,
       },
-      revalidate: 1, // Optional: Set to a certain value for ISR
+      revalidate: 1,
     };
   } catch (error) {
     console.error("Error fetching event:", error);
     return {
-      notFound: true, // Return 404 if an error occurs
+      notFound: true, 
     };
   }
 }

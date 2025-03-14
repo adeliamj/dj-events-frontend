@@ -30,14 +30,14 @@ export async function getServerSideProps({ query: { term } }) {
 
   const query = qs.stringify({
     filters: {
-      $or: [ // Use $or to search in multiple fields
+      $or: [ 
         { name: { $contains: term } },
         { venue: { $contains: term } },
         { description: { $contains: term } },
         { performers: { $contains: term } },
       ],
     },
-    populate: '*', // Populate all relevant fields
+    populate: '*', 
   })
 
   const res = await fetch(`${API_URL}/api/events?${query}`)

@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
             await checkUserLoggedIn();
         }
 
-        checkLoginStatus(); // Call the async function here
+        checkLoginStatus();
     }, []);
 
 
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
         });
 
         const data = await res.json();
-        console.log("User Data from API:", data); // Tambahkan ini untuk debugging
+        console.log("User Data from API:", data);
 
         if (res.ok) {
             setUser(data.user);

@@ -43,12 +43,9 @@ export default function EditEventPage({ evt, token }) {
     //     );
     // };
 
-
-    // Handling the submit
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validasi input
         const hasEmptyFields = Object.values(values).some((element) => element === '');
 
         if (hasEmptyFields) {
@@ -64,7 +61,7 @@ export default function EditEventPage({ evt, token }) {
                     Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    data: values // Perbaikan: Bungkus dalam objek `data`
+                    data: values
                 }),
             });
 
@@ -77,8 +74,6 @@ export default function EditEventPage({ evt, token }) {
                 toast.error(`Something went wrong: ${errorData.error.message}`);
                 return;
             }
-
-            // Jika berhasil, ambil event terbaru
             const updatedEvt = await res.json();
             router.push(`/events/${updatedEvt.data.slug}`);
         } catch (error) {
@@ -87,32 +82,26 @@ export default function EditEventPage({ evt, token }) {
         }
     };
 
-
-
-    // Handling input change
     const handleInputChange = (e) => {
         const { name, value } = e.target
         setValues({ ...values, [name]: value })
     }
-
-    // Handling image upload
     const imageUploaded = async () => {
         try {
             console.log("Fetching event with ID:", evt.id);
             const res = await fetch(`${API_URL}/api/events?filters[id][$eq]=${evt.id}&populate=image`);
             const data = await res.json();
 
-            console.log("API Response:", JSON.stringify(data, null, 2)); // Debugging response
+            console.log("API Response:", JSON.stringify(data, null, 2)); 
 
             if (!res.ok || !data.data || data.data.length === 0) {
                 console.error("Event not found:", data);
                 return;
             }
 
-            const event = data.data[0]; // Ambil event pertama
-            console.log("Event Data Structure:", event); // Debugging
+            const event = data.data[0]; 
+            console.log("Event Data Structure:", event); 
 
-            // ✅ Akses slug dengan aman
             const slug = event.slug || event.attributes?.slug;
             if (slug) {
                 console.log("Redirecting to:", `/events/${slug}`);
@@ -121,7 +110,6 @@ export default function EditEventPage({ evt, token }) {
                 console.warn("Slug not found in response:", event);
             }
 
-            // ✅ Akses gambar dengan aman
             const imageUrl = event.image?.url || event.attributes?.image?.data?.attributes?.url;
             if (imageUrl) {
                 setImagePreview(imageUrl);
@@ -254,31 +242,27 @@ export async function getServerSideProps({ params: { id }, req }) {
         const cookies = parseCookies(req) || {};
         const token = cookies.token || null;
 
-        // Fetch the event data using the `id`
         const res = await fetch(`${API_URL}/api/events?populate=*&id=${id}`);
         const events = await res.json();
 
-        console.log(req.headers.cookie); // Accessing cookie in req headers
+        console.log(req.headers.cookie);
 
-        // Ensure the events data is valid
         if (!events || !events.data || events.data.length === 0) {
             console.error(`No event data found for ID: ${id}`);
             return {
-                notFound: true, // Return 404 if no event found
+                notFound: true,
             };
         }
 
-        // Find the event that matches the ID
         const evt = events.data.find(event => String(event.id) === id);
 
         if (!evt) {
             console.error(`No event found with ID: ${id}`);
             return {
-                notFound: true, // Return 404 if no event matches the ID
+                notFound: true,
             };
         }
 
-        // Ensure the event object is serializable and provide default values
         const sanitizedEvt = {
             id: evt.id || null,
             name: evt.name || 'Untitled Event',
@@ -293,105 +277,18 @@ export async function getServerSideProps({ params: { id }, req }) {
 
         return {
             props: {
-                evt: sanitizedEvt, // Passing the sanitized event to the page
+                evt: sanitizedEvt,
                 token
             },
         };
     } catch (error) {
         console.error(`Error fetching event for ID ${id}:`, error);
         return {
-            notFound: true, // Return 404 if an error occurs
+            notFound: true, 
         };
     }
 }
 
 
-// export async function getStaticPaths() {
-//     try {
-//         const res = await fetch(`${API_URL}/api/events`);
-//         const events = await res.json();
-
-//         // Check if the events data is valid and contains items
-//         if (!events || !events.data || events.data.length === 0) {
-//             console.error("No events data found");
-//             return {
-//                 paths: [], // No paths if there is no data
-//                 fallback: 'blocking',
-//             };
-//         }
-
-//         // Generate paths using the event `id`
-//         const paths = events.data.map(evt => ({
-//             params: { id: String(evt.id) }, // Use event `id` for path
-//         }));
-
-//         console.log("Generated paths:", paths); // Debugging path generation
-
-//         return {
-//             paths,
-//             fallback: 'blocking', // Ensure SSR on first request
-//         };
-//     } catch (error) {
-//         console.error("Error fetching event paths:", error);
-//         return {
-//             paths: [], // Fallback if an error occurs
-//             fallback: 'blocking',
-//         };
-//     }
-// }
-
-
-// export async function getStaticProps({ params: { id } }, req) {
-//     try {
-//         // Fetch the event data using the `id`
-//         const res = await fetch(`${API_URL}/api/events?populate=*&id=${id}`);
-//         const events = await res.json();
-
-//         console.log(req.headers.cookie)
-
-//         // Ensure the events data is valid
-//         if (!events || !events.data || events.data.length === 0) {
-//             console.error(`No event data found for ID: ${id}`);
-//             return {
-//                 notFound: true, // Return 404 if no event found
-//             };
-//         }
-
-//         // Find the event that matches the ID
-//         const evt = events.data.find(event => String(event.id) === id);
-
-//         if (!evt) {
-//             console.error(`No event found with ID: ${id}`);
-//             return {
-//                 notFound: true, // Return 404 if no event matches the ID
-//             };
-//         }
-
-//         // Ensure the event object is serializable and provide default values
-//         const sanitizedEvt = {
-//             id: evt.id || null,
-//             name: evt.name || 'Untitled Event',
-//             date: evt.date || 'TBD',
-//             time: evt.time || 'TBD',
-//             venue: evt.venue || 'Unknown Venue',
-//             address: evt.address || 'Unknown Address',
-//             performers: evt.performers || 'Unknown Performers',
-//             description: evt.description || 'No description available', // Handle missing description
-//             image: evt.image || null,
-//         };
-
-//         return {
-//             props: {
-//                 evt: sanitizedEvt, // Passing the sanitized event to the page
-//             },
-//             revalidate: 1, // Optional: Set to a certain value for ISR
-//         };
-//     } catch (error) {
-//         console.error(`Error fetching event for ID ${id}:`, error);
-//         return {
-//             notFound: true, // Return 404 if an error occurs
-//         };
-//     }
-// }
 
 

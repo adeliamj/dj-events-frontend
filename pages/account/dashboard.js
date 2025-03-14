@@ -1,7 +1,7 @@
 import parseCookies from '@/helpers/index';
 import Layout from "@/components/Layout";
 import { API_URL } from '@/config/index';
-import DashboardEvent from '@/components/DashboardEvent'; // Import komponen
+import DashboardEvent from '@/components/DashboardEvent';
 import styles from '@/styles/Dashboard.module.css';
 import { useRouter } from 'next/router'
 import { ToastContainer, toast } from 'react-toastify'
@@ -37,7 +37,6 @@ export default function DashboardPage({ events, user, token }) {
         <Layout title='User Dashboard'>
             <div className={styles.dash}>
                 <h1>Dashboard</h1>
-                {/* <h3>Welcome, {user?.username || 'Guest'}!</h3> */}
                 <h3>My Events</h3>
 
                 {events?.length > 0 ? (

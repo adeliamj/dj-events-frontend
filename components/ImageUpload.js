@@ -21,9 +21,9 @@ export default function ImageUpload({ evtId, imageUploaded, token }) {
 
     const formData = new FormData()
     formData.append('files', image, image.name);
-    formData.append('ref', 'api::event.event') // Nama model di Strapi
-    formData.append('refId', evtId)  // ID event terkait
-    formData.append('field', 'image') // Nama field di event
+    formData.append('ref', 'api::event.event') 
+    formData.append('refId', evtId)  
+    formData.append('field', 'image') 
 
     try {
       const res = await fetch(`${API_URL}/api/upload`, {
@@ -41,7 +41,6 @@ export default function ImageUpload({ evtId, imageUploaded, token }) {
         return
       }
 
-      // Update tampilan dengan gambar baru
       imageUploaded()
     } catch (error) {
       console.error('Error uploading image:', error)

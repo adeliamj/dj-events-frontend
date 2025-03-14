@@ -24,7 +24,6 @@ export default function AddEventPage({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validasi
     const hasEmptyFields = Object.values(values).some((element) => element === "");
 
     if (hasEmptyFields) {
@@ -39,7 +38,7 @@ export default function AddEventPage({ token }) {
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
-        data: values,  // Mengirimkan data form
+        data: values, 
       }),
     });
 
@@ -51,7 +50,7 @@ export default function AddEventPage({ token }) {
       toast.error("Something Went Wrong");
     } else {
       const evt = await res.json();
-      console.log("Slug event yang diterima:", evt.data.slug); // Pastikan mengakses slug dengan benar
+      console.log("Slug event yang diterima:", evt.data.slug);
       if (evt && evt.data.slug) {
         router.push(`/events/${evt.data.slug}`);
       } else {
@@ -157,7 +156,7 @@ export async function getServerSideProps({ req }) {
 
   return {
     props: {
-      token: token || null,  // Pastikan token tidak undefined
+      token: token || null, 
     },
   };
 }

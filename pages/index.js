@@ -4,9 +4,7 @@ import EventItem from "@/components/EventItem";
 import { API_URL } from "@/config/index";
 
 export default function HomePage({ events }) {
-  // console.log('Events Data:', events);
-
-  // Check if events is empty
+  
   if (events.length === 0) {
     return (
       <Layout>
@@ -39,9 +37,8 @@ export async function getStaticProps() {
   }
 
   const json = await res.json();
-  console.log('API Response:', json); // Log raw response
+  console.log('API Response:', json); 
 
-  // Extract event data and make sure the image URL is properly included
   const events = json.data?.map(item => ({
     id: item.id,
     slug: item.slug,

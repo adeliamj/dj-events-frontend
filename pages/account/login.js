@@ -12,9 +12,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  // Add the check for error before using it
   useEffect(() => {
-    console.log("Effect triggered, error:", error); // Debugging
+    console.log("Effect triggered, error:", error);
     if (error) {
       toast.error(error);
     }
@@ -23,7 +22,7 @@ export default function LoginPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Login Data:", { email, password }); // Debugging
+    console.log("Login Data:", { email, password });
     login({ email, password });
   };
   

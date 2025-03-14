@@ -27,7 +27,6 @@ export default function Header() {
                     </li>
                     {user ? (
                         <>
-                    {/* if logged in */}
                     <li>
                         <Link href='/events/add'>
                             Add Event

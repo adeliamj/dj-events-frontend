@@ -14,7 +14,6 @@ export default async (req, res) => {
     }
 
     try {
-      // Ubah endpoint ke /api/users/me jika Anda ingin data pengguna
       const strapiRes = await fetch(`${API_URL}/api/users/me`, {
         method: 'GET',
         headers: {
