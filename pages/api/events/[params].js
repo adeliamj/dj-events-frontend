@@ -1,4 +1,4 @@
-import { events } from '../../../data.json';
+import { events } from './data.json';
 
 export default function handler(req, res) {
     const { param } = req.query; 
